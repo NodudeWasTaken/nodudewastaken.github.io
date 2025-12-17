@@ -1,0 +1,418 @@
+/* App.css */
+
+/* General Body & App Styling */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* A more modern font */
+    background-color: #1a1a1a; /* Darker background */
+    color: #e0e0e0; /* Lighter text color */
+    margin: 0;
+    padding: 15px;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to top */
+    min-height: 100vh;
+}
+
+.App {
+    display: flex;
+    flex-direction: column;
+    gap: 25px; /* More space between sections */
+    max-width: 900px; /* Slightly wider app */
+    width: 100%; /* Ensure it takes full width up to max */
+    margin: 20px auto;
+    padding: 30px;
+    background-color: #282828; /* Slightly lighter than body */
+    border-radius: 12px; /* More rounded corners */
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Deeper shadow */
+}
+
+h1 {
+    text-align: center;
+    color: #6bff6b; /* Brighter green for title */
+    margin-bottom: 25px;
+    font-size: 2.2em;
+    font-weight: 600;
+}
+
+/* GroupBox styling */
+.group-box {
+    border: 1px solid #444; /* Softer border */
+    border-radius: 8px; /* Consistent rounding */
+    padding: 20px;
+    background-color: #333; /* Darker background for sections */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2); /* Inner shadow */
+}
+
+legend {
+    color: #6bd6ff; /* Brighter cyan for legends */
+    padding: 0 12px;
+    font-weight: bold;
+    font-size: 1.1em;
+    background-color: #333; /* Match background for better visual */
+    border-radius: 4px;
+}
+
+/* Media controls */
+.media-controls, .export-controls {
+    display: flex;
+    gap: 15px; /* More space */
+    align-items: center;
+    justify-content: flex-start; /* Align to start */
+    flex-wrap: wrap; /* Allow wrapping for buttons/progress */
+}
+
+.load-button, button {
+    background-color: #007acc; /* Deeper blue */
+    color: white;
+    padding: 10px 20px; /* More padding */
+    border-radius: 6px; /* More rounded */
+    cursor: pointer;
+    border: none;
+    font-size: 1em;
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth transitions */
+    flex-shrink: 0; /* Prevent buttons from shrinking */
+}
+
+.load-button:hover, button:hover:not(:disabled) {
+    background-color: #005f99; /* Darker hover */
+    transform: translateY(-1px); /* Slight lift effect */
+}
+
+button:disabled, .load-button[disabled] {
+    background-color: #5a5a5a; /* Darker disabled */
+    cursor: not-allowed;
+    transform: none;
+    opacity: 0.7;
+}
+
+.progress-container {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* More space */
+    min-width: 150px; /* Ensure it has some space on wrap */
+}
+
+.progress-label {
+    font-size: 0.95em;
+    color: #b0b0b0;
+    text-align: right; /* Align right for progress label */
+}
+
+progress {
+    width: 100%;
+    height: 12px; /* Taller progress bar */
+    border-radius: 6px;
+    overflow: hidden; /* Ensure color stays within bounds */
+    background-color: #4a4a4a; /* Darker background for empty part */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+progress::-webkit-progress-bar {
+    background-color: #4a4a4a;
+    border-radius: 6px;
+}
+
+progress::-webkit-progress-value {
+    background-color: #6bff6b; /* Bright green progress */
+    border-radius: 6px;
+}
+
+progress::-moz-progress-bar {
+    background-color: #4a4a4a; /* Needed for initial fill */
+    border-radius: 6px;
+}
+progress::-moz-progress-value { /* Firefox specific for the filled part */
+    background-color: #6bff6b;
+    border-radius: 6px;
+}
+
+
+.loaded-filename {
+    font-size: 0.9em;
+    color: #b0b0b0;
+    margin-top: 10px;
+    margin-bottom: 0;
+    text-align: center;
+}
+
+/* Audio Data Group */
+.audio-data-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.graph-label {
+    font-size: 0.95em;
+    color: #b0b0b0;
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: -5px; /* Pull closer to graph */
+}
+
+.audio-graph {
+    width: 100%;
+    height: 200px;
+    background-color: #1a1a1a;
+    border: 1px solid #4a4a4a; /* Softer border */
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+/* Settings Grid - Revamped Layout */
+.settings-grid {
+    display: flex; /* Use flexbox for main settings layout */
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+    gap: 20px; /* Space between main sections */
+    justify-content: center; /* Center content */
+    align-items: flex-start; /* Align sections to the top */
+}
+
+.slider-container {
+    display: flex;
+    gap: 40px; /* More space between two vertical sliders */
+    justify-content: center;
+    align-items: flex-end; /* Align to bottom for labels */
+    padding-top: 30px; /* Space for labels above sliders */
+    min-width: 200px; /* Ensure space for vertical sliders side-by-side */
+    flex-shrink: 0; /* Don't let it shrink */
+}
+
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px; /* Space between label, slider, value */
+    flex-shrink: 0; /* Prevent individual slider groups from shrinking */
+}
+
+/* Proper Vertical Slider Styling */
+.vertical-slider {
+    -webkit-appearance: slider-vertical; /* For Chrome/Safari */
+    writing-mode: bt-lr; /* For Firefox (bottom-to-top, left-to-right) */
+    appearance: slider-vertical; /* Standard */
+    
+    width: 12px; /* Thickness of the track */
+    height: 180px; /* Length of the track */
+    background: #555; /* Darker track */
+    border-radius: 6px;
+    outline: none;
+    transition: background 0.2s ease;
+    margin: 0; /* Remove default margin */
+}
+
+.vertical-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px; /* Larger thumb */
+    height: 20px;
+    border-radius: 50%;
+    background: #00aaff; /* Bright blue thumb */
+    cursor: grab;
+    border: 2px solid #fff; /* White border for contrast */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vertical-slider::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    background: #007bb3; /* Darker on active */
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}
+
+.vertical-slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #00aaff;
+    cursor: grab;
+    border: 2px solid #fff;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.vertical-slider::-moz-range-thumb:active {
+    cursor: grabbing;
+    background: #007bb3;
+    box-shadow: 0 0 8px rgba(0, 0, 0, 0.7);
+}
+
+.slider-group span { /* Value display next to slider */
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+.options-container {
+    flex: 1 1 50%; /* Allows it to take more space but still wrap */
+    min-width: 300px; /* Minimum width to prevent squishing */
+    display: flex;
+    flex-direction: column;
+    gap: 15px; /* Space between sub-groups */
+}
+
+.sub-group {
+    border: 1px solid #4a4a4a;
+    border-radius: 6px;
+    padding: 15px;
+    background-color: #3d3d3d; /* Slightly darker than main group-box */
+}
+
+.sub-group legend {
+    font-size: 1em;
+    color: #b0b0b0;
+    font-weight: normal;
+    background-color: #3d3d3d;
+}
+
+.sub-group div {
+    margin-bottom: 8px; /* Space between radio/checkbox lines */
+}
+.sub-group div:last-child {
+    margin-bottom: 0;
+}
+
+/* Radio/Checkbox styling */
+input[type="checkbox"], input[type="radio"] {
+    margin-right: 8px; /* More space */
+    transform: scale(1.1); /* Slightly larger */
+    accent-color: #00aaff; /* Highlight color for checkboxes/radios */
+    cursor: pointer;
+}
+
+label {
+    cursor: pointer;
+    display: inline-flex; /* Align text with input */
+    align-items: center;
+}
+
+/* Number input styling */
+.spinbox-group {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* More space */
+    margin-top: 10px;
+}
+
+.spinbox-group label {
+    flex-shrink: 0; /* Prevent label from shrinking */
+}
+
+.spinbox-group input[type="number"] {
+    width: 80px; /* Wider input for numbers */
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid #5a5a5a;
+    background-color: #4a4a4a;
+    color: #e0e0e0;
+    font-size: 1em;
+    -moz-appearance: textfield; /* Remove spinner buttons for Firefox */
+}
+
+/* Hide spinner buttons for Webkit browsers */
+.spinbox-group input[type="number"]::-webkit-outer-spin-button,
+.spinbox-group input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* Export controls */
+.export-controls {
+    justify-content: flex-end; /* Align export buttons to the right */
+}
+
+.disclaimer {
+    font-size: 0.9em;
+    color: #888;
+    text-align: center;
+    margin-top: 25px;
+}
+
+/* Specific styling for disabled fieldset */
+fieldset[disabled] {
+    opacity: 0.5; /* More visible disabled state */
+    pointer-events: none; /* Disables all interactions within the fieldset */
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .App {
+        padding: 20px;
+        margin: 10px auto;
+    }
+    .media-controls, .export-controls {
+        flex-direction: column;
+        align-items: stretch; /* Stretch buttons to full width */
+    }
+    .progress-container {
+        width: 100%;
+        text-align: center;
+    }
+    .progress-label {
+        text-align: center;
+    }
+
+    /* Stack settings sections vertically */
+    .settings-grid {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .slider-container {
+        flex-direction: column; /* Stack sliders vertically on small screens */
+        gap: 20px; /* Space between each slider group */
+        padding-top: 0; /* Remove top padding when stacked */
+        align-items: center; /* Center horizontally */
+    }
+
+    .slider-group {
+        width: 100%; /* Take full width of parent */
+    }
+
+    /* Revert vertical slider to horizontal behavior on small screens */
+    .vertical-slider {
+        -webkit-appearance: none; /* Remove vertical appearance */
+        appearance: none;
+        writing-mode: horizontal-tb; /* Revert to horizontal */
+        width: 100%; /* Take full width of parent */
+        height: 12px; /* Standard horizontal slider height */
+        margin: 10px 0; /* Add some margin */
+        background: #555; /* Ensure track background is consistent */
+    }
+
+    /* Reset thumb appearance to horizontal defaults (or re-style for horizontal) */
+    .vertical-slider::-webkit-slider-thumb {
+        width: 20px; /* Width for horizontal thumb */
+        height: 20px; /* Height for horizontal thumb */
+    }
+    .vertical-slider::-moz-range-thumb {
+        width: 20px; /* Width for horizontal thumb */
+        height: 20px; /* Height for horizontal thumb */
+    }
+
+    .options-container {
+        min-width: unset;
+        width: 100%;
+    }
+    .sub-group {
+        padding: 12px;
+    }
+}
+
+.stats-display {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    font-size: 0.9em;
+}
+
+.stats-display div {
+    background-color: #333;
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+}
