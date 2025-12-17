@@ -51,7 +51,7 @@ function App() {
     const [overflowMode, setOverflowMode] = useState(Config.get("OOR", "crop")); // 0: crop, 1: bounce, 2: fold
     const [showHeatmap, setShowHeatmap] = useState(Config.get("heatmap", true));
 
-    const [autoMap, setAutoMap] = useState(Config.get("automap", true));
+    const [autoMap, setAutoMap] = useState(Config.get("automap", false));
     const [autoMapMode, setAutoMapMode] = useState(Config.get("automode", "meanv2")); // 0: mean, 1: meanv2, 2: length
     const [targetSpeed, setTargetSpeed] = useState(Config.get("tspeed", 250));
     const [targetPitch, setTargetPitch] = useState(Config.get("tpitch", 20));
