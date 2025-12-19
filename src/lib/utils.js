@@ -27,9 +27,8 @@ export function int_at(pos, at, last_pos, last_at, limit) {
     return (before_ratio * at + after_ratio * last_at) / (after_ratio + before_ratio);
 }
 
-const init_action = { at: 0, pos: 0 }; 
 export function create_peak_bounce(pos, at, last_pos, last_at) {
-    const actions = [init_action];
+    const actions = [];
     const action = (p, a) => actions.push({ at: a, pos: Math.round(p) }); 
 
     if (last_pos < 0) {
@@ -56,7 +55,7 @@ export function create_peak_bounce(pos, at, last_pos, last_at) {
 }
 
 export function create_peak_fold(pos, at, last_pos, last_at) {
-    const actions = [init_action];
+    const actions = [];
     const action = (p, a) => actions.push({ at: a, pos: Math.round(p) }); 
 
     const int_att = (last_at + at) / 2;
@@ -87,7 +86,7 @@ export function create_actions_barrier(data, start_time = 0, overflow = 0) {
     let last_at = start_time;
     let last_pos = 50; // Initial position
 
-    const actions = [init_action];
+    const actions = [];
     // Ensure data properties exist and are arrays
     if (!data.energy_to_pos || !data.beats || !data.offsets) {
         console.warn("Missing data for create_actions_barrier:", data);
@@ -119,8 +118,14 @@ export function create_actions_barrier(data, start_time = 0, overflow = 0) {
     return actions;
 }
 
-export function create_actions(data, energy_multiplier = 1, pitch_offset = 100, overflow = 0) {
-    // Ensure 'pitch' and 'energy' properties exist and are arrays
+export function create_actions(
+    data,
+    energy_multiplier = 1,
+    pitch_range = 100,
+    overflow = 0,
+    amplitude_centering = 0,
+    center_offset = 0
+) {
     if (!data.pitch || !data.energy) {
         console.warn("Missing 'pitch' or 'energy' in data for create_actions:", data);
         return [];
@@ -129,8 +134,23 @@ export function create_actions(data, energy_multiplier = 1, pitch_offset = 100, 
     // Clone data to avoid modifying original, or ensure it's shallow copy if only adding props
     const processedData = { ...data };
 
-    processedData.offsets = new Array(data.pitch.length).fill(pitch_offset - 0);
-    processedData.energy_to_pos = normalize(data.energy).map(i => i * energy_multiplier * 50);
+    const normalized_pitch = normalize(data.pitch);
+    const normalized_energy = normalize(data.energy);
+
+    const pitch_bias = (100 - pitch_range) / 2;
+
+    processedData.offsets = normalized_pitch
+        .slice(0, normalized_energy.length)
+        .map((pitch, i) =>
+            pitch * pitch_range +
+            pitch_bias +
+            amplitude_centering * normalized_energy[i] +
+            center_offset
+        );
+
+    processedData.energy_to_pos = normalized_energy.map(
+        e => e * energy_multiplier * 50
+    );
 
     return create_actions_barrier(processedData, overflow);
 }

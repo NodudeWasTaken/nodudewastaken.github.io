@@ -39,51 +39,29 @@ function App() {
         isRendering,
         processAudioFile,
         generateFunscriptActions,
-        autoTuneParameters,
     } = useAudioProcessor();
 
     const [fileName, setFileName] = useState(null);
     const [currentAudioFile, setCurrentAudioFile] = useState(null);
 
     // Settings state
+    const [centerVal, setCenterVal] = useState(Config.get("center", 20));
     const [pitchRange, setPitchRange] = useState(Config.get("pitch", 20));
     const [energyMultiplier, setEnergyMultiplier] = useState(Config.get("energy", 10));
     const [overflowMode, setOverflowMode] = useState(Config.get("OOR", "crop")); // 0: crop, 1: bounce, 2: fold
+    const [amplitudeCentering, setAmplitudeCentering] = useState(Config.get("amplitude", 0));
     const [showHeatmap, setShowHeatmap] = useState(Config.get("heatmap", true));
-
-    const [autoMap, setAutoMap] = useState(Config.get("automap", false));
-    const [autoMapMode, setAutoMapMode] = useState(Config.get("automode", "meanv2")); // 0: mean, 1: meanv2, 2: length
-    const [targetSpeed, setTargetSpeed] = useState(Config.get("tspeed", 250));
-    const [targetPitch, setTargetPitch] = useState(Config.get("tpitch", 20));
-    const [targetPercentage, setTargetPercentage] = useState(Config.get("tper", 65));
 
     const audioInputCanvasRef = useRef(null);
     const audioOutputCanvasRef = useRef(null);
-    // Removed unused refs: settingsGroupRef, automapGroupRef
+    // Removed unused refs: settingsGroupRef
 
     const oorMap = { "crop": 0, "bounce": 1, "fold": 2 };
-    const automapModeMap = { "mean": 0, "meanv2": 1, "length": 2 };
 
     // Update funscript actions when settings or audio data changes
     useEffect(() => {
-        generateFunscriptActions(audioData, energyMultiplier / 10.0, pitchRange, oorMap[overflowMode]);
-    }, [audioData, energyMultiplier, pitchRange, overflowMode, generateFunscriptActions]);
-
-    // Handle auto-mapping
-    useEffect(() => {
-        if (autoMap && Object.keys(audioData).length > 0) {
-            const { pitch, energy } = autoTuneParameters(
-                audioData,
-                targetPitch,
-                targetSpeed,
-                targetPercentage / 100.0,
-                automapModeMap[autoMapMode]
-            );
-            // console.log("Auto-tuned:", {pitch, energy});
-            setPitchRange(Math.round(pitch));
-            setEnergyMultiplier(Math.round(energy * 10.0));
-        }
-    }, [autoMap, audioData, targetPitch, targetSpeed, targetPercentage, autoMapMode, autoTuneParameters]);
+        generateFunscriptActions(audioData, energyMultiplier / 10.0, pitchRange, oorMap[overflowMode], amplitudeCentering, centerVal);
+    }, [audioData, energyMultiplier, pitchRange, overflowMode, amplitudeCentering, centerVal, generateFunscriptActions]);
 
     // Draw audio input graph
     useEffect(() => {
@@ -243,7 +221,7 @@ function App() {
             });
             ctx.stroke();
         }
-    }, [funscriptResult, audioData, showHeatmap, energyMultiplier, pitchRange, overflowMode]); // Depend on all relevant states
+    }, [funscriptResult, audioData, showHeatmap, energyMultiplier, pitchRange, overflowMode, amplitudeCentering]); // Depend on all relevant states
 
     // Compute stats for the funscript
     const stats = useMemo(() => {
@@ -327,7 +305,9 @@ Thanks to you for using this software!`);
             energyMultiplier / 10.0,
             pitchRange,
             oorMap[overflowMode],
-            width, height // These are the dimensions for the output canvas
+            width, height, // These are the dimensions for the output canvas
+            amplitudeCentering,
+			//centerVal
         );
 
         const url = heatmapCanvas.toDataURL('image/png');
@@ -418,10 +398,24 @@ Thanks to you for using this software!`);
                 <div className="settings-grid">
                     <div className="slider-container"> {/* Container for both vertical sliders */}
                         <div className="slider-group">
+                            <label>Center</label>
+                            <input
+                                type="range"
+                                min="-100"
+                                max="100"
+                                step="1"
+                                value={centerVal}
+                                onChange={handleSettingsChange(setCenterVal, "center")}
+                                className="vertical-slider"
+                            />
+                            <span>{centerVal}</span>
+                        </div>
+
+                        <div className="slider-group">
                             <label>Pitch Offset</label>
                             <input
                                 type="range"
-                                min="0"
+                                min="-100"
                                 max="100"
                                 step="1"
                                 value={pitchRange}
@@ -444,9 +438,23 @@ Thanks to you for using this software!`);
                             />
                             <span>{energyMultiplier}</span>
                         </div>
+
+                        <div className="slider-group">
+                            <label>Amplitude Centering</label>
+                            <input
+                                type="range"
+                                min="-100"
+                                max="100"
+                                step="1"
+                                value={amplitudeCentering}
+                                onChange={handleSettingsChange(setAmplitudeCentering, "amplitude")}
+                                className="vertical-slider"
+                            />
+                            <span>{amplitudeCentering}</span>
+                        </div>
                     </div> {/* End slider-container */}
 
-                    <div className="options-container"> {/* Container for Misc and Automap settings */}
+                    <div className="options-container"> {/* Container for Misc settings */}
                         <fieldset className="sub-group">
                             <legend>Out of range</legend>
                             <div>
@@ -464,50 +472,6 @@ Thanks to you for using this software!`);
                             <legend>Misc</legend>
                             <div>
                                 <label><input type="checkbox" checked={showHeatmap} onChange={handleCheckboxChange(setShowHeatmap, "heatmap")} /> Heatmap</label>
-                            </div>
-
-                            <div>
-                                <label><input type="checkbox" checked={autoMap} onChange={handleCheckboxChange(setAutoMap, "automap")} disabled /> Automap</label>
-                            </div>
-                        </fieldset>
-
-                        <fieldset className="sub-group automap-settings" disabled={!autoMap}>
-                            <legend>Automap settings</legend>
-                            <div>
-                                <label><input type="radio" name="automap_mode" value="mean" checked={autoMapMode === "mean"} onChange={handleRadioChange(setAutoMapMode, "automode")} /> Mean</label>
-                            </div>
-                            <div>
-                                <label><input type="radio" name="automap_mode" value="meanv2" checked={autoMapMode === "meanv2"} onChange={handleRadioChange(setAutoMapMode, "automode")} /> MeanV2</label>
-                            </div>
-                            <div>
-                                <label><input type="radio" name="automap_mode" value="length" checked={autoMapMode === "length"} onChange={handleRadioChange(setAutoMapMode, "automode")} /> Length</label>
-                            </div>
-                            <div className="spinbox-group">
-                                <label>Target Speed:</label>
-                                <input
-                                    type="number"
-                                    min="0" max="500"
-                                    value={targetSpeed}
-                                    onChange={handleSettingsChange(setTargetSpeed, "tspeed")}
-                                />
-                            </div>
-                            <div className="spinbox-group">
-                                <label>Target Pitch:</label>
-                                <input
-                                    type="number"
-                                    min="0" max="100"
-                                    value={targetPitch}
-                                    onChange={handleSettingsChange(setTargetPitch, "tpitch")}
-                                />
-                            </div>
-                            <div className="spinbox-group">
-                                <label>Target %:</label>
-                                <input
-                                    type="number"
-                                    min="0" max="100"
-                                    value={targetPercentage}
-                                    onChange={handleSettingsChange(setTargetPercentage, "tper")}
-                                />
                             </div>
                         </fieldset>
                     </div> {/* End options-container */}

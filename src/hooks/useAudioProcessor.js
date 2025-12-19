@@ -1,14 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { create_actions, speed, dumpFunscript } from '../lib/utils'; // Assuming these are now in lib/utils.js
-import * as optimize from '../lib/optimize'; // Autoval is separate now
 import { HEATMAP_COLORS } from '../lib/constants'; // For render_heatmap
 
 // Dynamically import the worker URL for Vite/Webpack
 import AudioProcessorWorker from '../workers/audioProcessor.worker?worker';
 
 // Helper for render_heatmap in JS (using Canvas)
-export function render_heatmap_js(data, energy_multiplier, pitch_range, overflow, width, height) {
-    const result = create_actions(data, energy_multiplier, pitch_range, overflow);
+export function render_heatmap_js(data, energy_multiplier, pitch_range, overflow, width, height, amplitude_centering = 0, center_offset = 0) {
+    const result = create_actions(data, parseFloat(energy_multiplier), parseFloat(pitch_range), parseFloat(overflow), parseFloat(amplitude_centering), parseFloat(center_offset));
 
     const canvas = document.createElement('canvas');
     canvas.width = width;
@@ -180,21 +179,23 @@ export function useAudioProcessor() {
         }
     }, []);
 
-    const generateFunscriptActions = useCallback((currentAudioData, energyMult, pitchRange, overflowMode) => {
+    const generateFunscriptActions = useCallback((currentAudioData, energyMult, pitchRange, overflowMode, amplitudeCentering = 0, centerOffset = 0) => {
         if (Object.keys(currentAudioData).length === 0) {
             setFunscriptResult([]);
             return;
         }
-        
+
         setIsRendering(true);
         setProgress({ value: 0, message: 'Generating actions...' });
 
         try {
             const actions = create_actions(
                 currentAudioData,
-                energyMult,
-                pitchRange,
-                overflowMode
+                parseFloat(energyMult),
+                parseFloat(pitchRange),
+                parseFloat(overflowMode),
+                parseFloat(amplitudeCentering),
+                parseFloat(centerOffset)
             );
             setFunscriptResult(actions);
             setProgress({ value: 100, message: 'Actions generated!' });
@@ -207,22 +208,6 @@ export function useAudioProcessor() {
         }
     }, []);
 
-    const autoTuneParameters = useCallback((currentAudioData, tpi, targetSpeed, v2above, opt) => {
-        if (Object.keys(currentAudioData).length === 0) {
-            return { pitch: 0, energy: 0 };
-        }
-        setProgress({ value: 0, message: 'Auto-tuning parameters...' });
-        try {
-            const [pitch, energy] = optimize.autoval(currentAudioData, tpi, targetSpeed, v2above, opt);
-            setProgress({ value: 100, message: 'Auto-tuning complete!' });
-            return { pitch, energy };
-        } catch (error) {
-            console.error("Auto-tuning failed:", error);
-            setProgress({ value: -1, message: `Auto-tune error: ${error.message}` });
-            return { pitch: 0, energy: 0 };
-        }
-    }, []);
-
     return {
         audioData,
         funscriptResult,
@@ -231,7 +216,6 @@ export function useAudioProcessor() {
         isRendering,
         processAudioFile,
         generateFunscriptActions,
-        autoTuneParameters,
         render_heatmap_js,
     };
 }
