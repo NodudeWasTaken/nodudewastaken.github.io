@@ -88,7 +88,16 @@ function getBeats(rmsValues, sr, hopLength, audioDuration) {
     const frameTimes = framesToTime(rmsValues.length, sr, hopLength);
 
     // Thresholding and simple peak picking
-    const maxRMS = rmsValues.length > 0 ? Math.max(...rmsValues) : 0;
+    let maxRMS = 0;
+	// Math.max causes max callstack errors in big input.
+    if (rmsValues.length > 0) {
+        maxRMS = rmsValues[0];
+        for (let i = 1; i < rmsValues.length; i++) {
+            if (rmsValues[i] > maxRMS) {
+                maxRMS = rmsValues[i];
+            }
+        }
+    }
     const threshold = 0.2 * maxRMS; // Adjust threshold as needed
     const minBeatInterval = 0.3; // Minimum time between beats in seconds (approx 200 BPM)
 
